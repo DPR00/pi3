@@ -1,0 +1,156 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+from __future__ import division
+import csv
+import rospy
+import time
+from std_msgs.msg import String
+
+'''
+Melodia1 = ode to joy // base=0.125
+Melodia2 = feliz cumple
+Melodia3 = estrellita
+Melodia4 = megalovania
+'''
+
+#import Adafruit_PCA9685
+
+# Uncomment to enable debug output.
+#import logging
+#logging.basicConfig(level=logging.DEBUG)
+
+# Initialise the PCA9685 using the default address (0x40).
+#pwm = Adafruit_PCA9685.PCA9685()
+
+# Alternatively specify a different address and/or bus:
+#pwm = Adafruit_PCA9685.PCA9685(address=0x41, busnum=2)
+
+# Configure min and max servo pulse lengths
+# Equivalente a 0
+
+'''
+servo_min = 150  # Min pulse length out of 4096
+# Equivalente a 180
+servo_max = 600  # Max pulse length out of 4096
+
+# Frecuencia= 60hz, utilizada para servos.
+pwm.set_pwm_freq(60)
+
+#Conversion de grados, como la funcion map en Arduino
+
+width_pulse=int(int(degree)*(servo_max-servo_min)/180+servo_min)
+'''
+
+def isfloat(value):
+	try:
+		float(value)
+		return True
+	except ValueError:
+		return False
+
+def isint(value):
+	try:
+		int(value)
+		return True
+	except ValueError:
+		return False
+
+def conversion(datos):
+
+	datos=datos.split(",")
+
+	for i in range(len(datos)):
+		if isint(datos[i]):
+			datos[i]=int(datos[i])
+		elif isfloat(datos[i]):
+			datos[i]=float(datos[i])
+
+	return datos
+
+def Sub():
+	# inicializo el nodo
+	rospy.init_node('movimiento_mano', anonymous=True)
+
+	# Subscriptor
+	rospy.Subscriber("Notas_central",String, callback)
+
+	rospy.spin()
+
+def callback(data):
+
+	# Definimos los canales
+	dedo_0=0  #Channel 0
+	dedo_1=1  #Channel 1
+	dedo_2=2  #Channel 2
+	dedo_3=3  #Channel 3
+	dedo_4=4  #Channel 4
+	
+
+	try:
+		base=0.125
+		datos=data.data
+
+		if datos=="VENTANA":
+			print(datos)
+		else:
+			datos=conversion(datos)
+			print(datos)
+			
+			base=datos[7]
+			n_veces=int(round(base/(datos[6])))
+			servos=datos[1:6]
+			print(servos)
+			for i in range(len(servos)):
+				if servos[i]:
+					print("dedo "+str(i)+" activado")
+					'''
+					degrees=45
+					width_pulse=int(int(degrees)*(servo_max-servo_min)/180+servo_min)
+    				pwm.set_pwm(i,0,width_pulse)
+					'''
+			for i in range(n_veces):
+				time.sleep(base)
+
+			for i in range(len(servos)):
+				if servos[i]:
+					print("dedo "+str(i)+" desactivado")
+					'''
+					degrees=45
+					width_pulse=int(int(degrees)*(servo_max-servo_min)/180+servo_min)					
+    				pwm.set_pwm(i,0,width_pulse)
+					'''
+
+				
+	except:
+		pass
+
+if __name__ == '__main__':
+	Sub()
+'''
+
+while True:
+    #Empieza el codigo MIDI
+
+    #definir posicion
+    degree = raw_input("Insert position:") 
+
+    #Conversion de grados, como la funcion map en Arduino
+    width_pulse=int(int(degree)*(servo_max-servo_min)/180+servo_min)
+    
+    delay=1
+
+    pwm.set_pwm(dedo0,0,width_pulse)
+    time.sleep(delay)
+
+    pwm.set_pwm(dedo1,0,width_pulse)
+    time.sleep(delay)
+    
+    pwm.set_pwm(dedo2,0,width_pulse)
+    time.sleep(delay)
+    
+    pwm.set_pwm(dedo3,0,width_pulse)
+    time.sleep(delay)
+    
+    pwm.set_pwm(dedo4,0,width_pu
+'''

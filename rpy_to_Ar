@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+
+import rospy
+import serial
+from std_msgs.msg import String
+
+
+
+arduino= serial.Serial('/dev/ttyUSB0',baudrate=9600, timeout=1)
+arduino.flush()
+
+rospy.init_node("simple_publisher")
+pub= rospy.Publisher('string_publish', String, queue_size=10)
+rate= rospy.Rate(1)
+
+msg_to_publish= String()
+string_to_publish=""
+
+try:
+	while not rospy.is_shutdown():
+		#print "Inicio..."
+		arduino.write(bytes("111111\n")) #b encode to bytes and \n is bc the code on Arduino
+
+		string_to_publish = arduino.readline().decode('utf-8').rstrip()
+		msg_to_publish.data= string_to_publish
+		pub.publish(msg_to_publish)
+		print string_to_publish
+		rate.sleep()
+		
+except rospy.ROSInterruptException:
+	pass
